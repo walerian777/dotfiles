@@ -1,0 +1,9 @@
+[user]
+	name = Walerian
+	email = walerian.sobczak@gmail.com
+[alias]
+	co = checkout
+	st = status
+[core]
+	editor = vim
+	excludesfile = /Users/walerian/.gitignore
