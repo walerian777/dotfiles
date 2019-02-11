@@ -72,8 +72,15 @@ filetype plugin on
 " Pathogen end
 
 " NERDTree https://github.com/scrooloose/nerdtree
-noremap <C-\> :NERDTreeToggle<CR>
 let NERDTreeMapActivateNode = '<space>'
+function! ExpandNERDTree()
+  if empty(glob("%"))
+    NERDTreeToggle
+  else
+    NERDTreeFind
+  endif
+endfunction
+noremap <C-\> :call ExpandNERDTree()<CR>
 " NERDTree end
 
 
@@ -87,6 +94,9 @@ highlight ALEWarning ctermbg=Yellow
 highlight ALEWarning ctermfg=DarkGrey
 highlight ALEError ctermbg=Red
 highlight ALEError ctermfg=DarkGrey
+let g:ale_linters = {
+      \'javascript': ['eslint', 'flow', 'flow-language-server', 'jscs', 'jshint', 'standard', 'xo']
+      \}
 " ALE end
 
 " % macro to go to the matching do/end in Ruby
@@ -99,9 +109,19 @@ set statusline+=%#PmenuSel#
 set statusline+=%#LineNr#
 set statusline+=\ %f
 set statusline+=%=
+set statusline+=\ %{fugitive#statusline()}
 set statusline+=\ %y
 set statusline+=\ %{&fileencoding?&fileencoding:&encoding}
 set statusline+=\[%{&fileformat}\]
 set statusline+=\ %p%%
 set statusline+=\ %l:%c
 " Status Line end
+
+" Frozen String Literal macro"
+command Fsl call FrozenStringLiteral()
+
+function! FrozenStringLiteral()
+  let string = '# frozen_string_literal: true'
+  call setline(1, string)
+endfunction
+" Frozen String Literal macro end"
