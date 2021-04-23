@@ -1,0 +1,632 @@
+#+TITLE: Emacs Configuration
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el :mkdirp yes
+
+* Package system
+
+Emacs has a built-in package manager, and additionally I use [[https://github.com/jwiegley/use-package][use-package]] for improved interface for configuration and loading of packages.
+
+#+begin_src emacs-lisp
+  ;; Initialize package sources
+  (require 'package)
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+  ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+  ;; and `package-pinned-packages`. Most users will not need or want to do this.
+  ;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
+
+  ;; Initialize use-package
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+#+end_src
+
+* Basic User Interface configuration
+
+Set font size. Remove unnecessary elements of the default UI, and display row and column numbers by default.
+
+#+begin_src emacs-lisp
+  ;; Start the initial frame maximized
+  (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
+  ;; Default font size variable
+  (defvar w/default-font-size 170)
+
+  ;; Always confirm before exist
+  (setq confirm-kill-emacs 'y-or-n-p)
+
+  ;; Make the user interface more minimal
+  (setq inhibit-startup-message t)
+
+  (scroll-bar-mode -1) ; Disable visible scrollbar
+  (tool-bar-mode -1) ; Disable the toolbar
+  (tooltip-mode -1) ; Disable tooltips
+  (set-fringe-mode 10) ; Enlarge side margins
+  (menu-bar-mode -1) ; Disable the menu bar
+
+  ;; Enable line numbers
+  (column-number-mode)
+  (global-display-line-numbers-mode t)
+
+  ;; Always show parentheses
+  (show-paren-mode t)
+
+  ;; Display date & time
+  (setq display-time-24hr-format t)
+  (display-time)
+
+  ;; Add a newline at the end of a file on save
+  (setq require-final-newline t)
+  (setq-default require-final-newline t)
+
+  ;; Fix tab identation to 2 spaces
+  (setq tab-width 2
+      indent-tabs-mode nil)
+
+  (add-hook 'before-save-hook
+            (lambda ()
+              (when (derived-mode-p 'prog-mode)
+                (delete-trailing-whitespace))))
+
+  ;; Disable line numbers for some modes
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  shell-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+** Fonts configuration
+
+Currently [[https://dejavu-fonts.github.io/][DejaVu Sans Mono]] is my font of choice for monospaced text.
+For other cases I stick to Helvetica.
+
+#+begin_src emacs-lisp
+  ;; Font configuratoin
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height w/default-font-size)
+
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "DejaVu Sans Mono" :height w/default-font-size)
+
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "Helvetica" :height w/default-font-size :weight 'regular)
+#+end_src
+
+* Key bindings
+
+** Diacritics
+
+Disable the right alt/option key within Emacs so the diactrical characters can be typed.
+
+#+begin_src emacs-lisp
+(setq ns-right-alternate-modifier 'none)
+#+end_src
+
+* File management
+
+** dired
+
+Dired is a built-in file manager for Emacs.
+The default options for the ~ls~ command are ~-la~,  and it's customizable under the ~dired-listing-switches~ variable. My options of preference are:
+  - ~-o~ List in long format, but omit the group id.
+  - ~-a~ Include directory entries whose names begin with a dot (.)
+  - ~-g~ Suppress the owner name.
+  - ~-h~ When used with the ~-l~ option, use unit suffixes in order to reduce the number of digits to three or less using base 2 for sizes.
+
+Addititionally, ~dired-use-ls-dired~ needs to be set to ~nil~ to prevent following issue on macOS, which doesn't support ~--dired~ flag for its ~ls~ command:
+~ls does not support --dired~
+
+#+begin_src emacs-lisp
+  (use-package dired
+    :ensure nil
+    :commands (dired dired-jump)
+    :bind (("C-x C-j" . dired-jump))
+    :custom
+    (dired-listing-switches "-oagh")
+    (dired-use-ls-dired nil))
+#+end_src
+
+* Better Help Commands
+
+** Helpful
+
+[[https://github.com/Wilfred/helpful][Helpful]] is an alternative to the built-in Emacs help that provides much more contextual information.
+Note that the built-in ~describe-function~ includes both functions and macros. ~helpful-function~ is functions only, so is provided ~helpful-callable~ as a drop-in replacement.
+
+#+begin_src emacs-lisp
+  (use-package helpful
+    :bind
+    ("C-c C-d" . helpful-at-point)
+    ("C-h f" . helpful-callable)
+    ("C-h C" . helpful-command)
+    ("C-h v" . helpful-variable)
+    ("C-h k" . helpful-key))
+#+end_src
+
+* UI configuration
+
+** Themes
+
+I use [[https://github.com/fniessen/emacs-leuven-theme][leuven-theme]] for the light mode, and [[https://github.com/bbatsov/solarized-emacs][solarized-dark]] for the dark one.
+
+#+begin_src emacs-lisp
+  ;; Light
+  (use-package leuven-theme :config (load-theme 'leuven t))
+
+  ;; Dark
+  ;; (use-package solarized-theme :config (load-theme 'solarized-dark t))
+#+end_src
+
+** Which key
+
+[[https://github.com/justbur/emacs-which-key][which-key]]  is a minor mode for Emacs that displays the key bindings following your currently entered incomplete command (a prefix) in a popup. For example, after enabling the minor mode if you enter ~C-x~ and wait for the default of 1 second the minibuffer will expand with all of the available key bindings that follow ~C-x~.
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :init
+    (which-key-mode)
+    :config
+    (setq which-key-idle-delay 0.5))
+#+end_src
+
+** Helm
+
+[[https://github.com/emacs-helm/helm][Helm]] is an Emacs framework for incremental completions and narrowing selections.
+
+#+begin_src emacs-lisp
+  (use-package helm
+    ;; :init
+    ;; (add-to-list 'helm-completing-read-handlers-alist '(dired . nil))
+    :bind (([remap execute-extended-command] . helm-M-x)
+           ([remap find-file] . helm-find-files)
+           ([remap occur] . helm-occur)
+           ([remap list-buffers] . helm-buffers-list)
+           ([remap apropos-command] . helm-apropos))
+    :config
+    (helm-mode 1))
+#+end_src
+
+** Helm-ag
+
+[[https://github.com/emacsorphanage/helm-ag][helm-ag.el]] provides interfaces of The Silver Searcher with helm. However, I use it with [[https://github.com/BurntSushi/ripgrep/][ripgrep]] within a special [[https://gist.github.com/pesterhazy/fabd629fbb89a6cd3d3b92246ff29779#gistcomment-2352523][wrapper]].
+
+#+begin_src emacs-lisp
+  (use-package helm-ag
+    :custom
+    (helm-ag-base-command "/usr/local/bin/rg-wrapper --no-heading --vimgrep --smart-case --mmap")
+    (helm-ag-success-exit-status '(0 2)))
+
+#+end_src
+
+Wrapper code:
+
+#+begin_src bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+newargs="$(echo "$@" | sed 's/\-\-ignore .* //')"
+/usr/local/bin/rg $newargs
+#+end_src
+
+** Undo-tree
+
+[[http://www.dr-qubit.org/undo-tree.html][undo-tree]] replaces Emacs' undo system with a system that treats undo history as what it is: a branching tree of changes. This simple idea allows the more intuitive behaviour of the standard undo/redo system to be combined with the power of never losing any history.
+
+#+begin_src emacs-lisp
+    (use-package undo-tree
+      :init (global-undo-tree-mode))
+#+end_src
+
+* Org-mode
+
+[[https://orgmode.org/][Org]] is a highly flexible structured plain text file format, composed of a few simple, yet versatile, structures.
+[[https://orgmode.org/manual/][Documentation]]
+[[https://orgmode.org/guide/index.html][Compact guide]]
+[[https://orgmode.org/worg/][Worg - community-written documentation]]
+
+** Improve font faces
+
+The ~w/org-font-setup~ function configures various text faces to tweak the sizes of headings and use variable width fonts by default in ~org-mode~. The font is switched back to fixed width for code blocks and tables so that they display correctly.
+
+#+begin_src emacs-lisp
+  (defun w/org-font-setup ()
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil :font "Helvetica" :weight 'regular :height (cdr face)))
+    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-table nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+#+end_src
+
+** Basic configuration
+
+Basic setup for ~org-mode~ and its agenda-related features.
+
+#+begin_src emacs-lisp
+  (defun w/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1))
+
+  (defvar w/home-agenda-files
+    '("~/org/home/inbox.org"
+      "~/org/home/projects.org"
+      "~/org/home/recurring.org"))
+
+  (defvar w/work-agenda-files
+    '("~/org/work/inbox.org"
+      "~/org/work/projects.org"
+      "~/org/work/recurring.org"))
+
+  (use-package org
+    :hook (org-mode . w/org-mode-setup)
+    :config
+    (setq org-ellipsis " ▾")
+
+    ;; Key bindings
+    (global-set-key (kbd "C-c l") 'org-store-link)
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (global-set-key (kbd "C-c c") 'org-capture)
+
+    ;; Getting Things Done
+    (setq org-agenda-start-with-log-mode t)
+    (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+
+    (setq org-agenda-files
+        (append w/home-agenda-files w/work-agenda-files))
+
+    (require 'org-habit)
+    (add-to-list 'org-modules 'org-habit)
+    (setq org-habit-graph-column 60)
+
+    ;; Temporary settings
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "NEXT(n)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
+
+    (setq org-refile-targets
+          '(("~/org/home/archive.org" :maxlevel . 1)
+            ("~/org/home/projects.org" :maxlevel . 2)
+            ("~/org/home/recurring.org" :maxlevel . 2)
+            ("~/org/home/someday.org" :maxlevel . 1)
+            ("~/org/work/archive.org" :maxlevel . 1)
+            ("~/org/work/projects.org" :maxlevel . 2)
+            ("~/org/work/recurring.org" :maxlevel . 2)
+            ("~/org/work/someday.org" :maxlevel . 1)))
+
+    ;; Save Org buffers after refiling!
+    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+    (setq org-tag-alist
+          '((:startgroup)
+            ("@computer" . ?c)
+            ("@phone" . ?p)
+            ("@shopping" . ?s)
+            (:endgroup)
+            ("reading" . ?r)
+            ("listening" . ?p)))
+
+    ;; Configure custom agendas
+    (setq org-agenda-custom-commands
+        '(("h" "Next tasks at home"
+           ((todo "NEXT"
+                  ((org-agenda-overriding-header "Next Tasks at home")
+                   (org-agenda-files w/home-agenda-files)))))
+        ("w" "Next tasks at work"
+         ((todo "NEXT"
+                ((org-agenda-overriding-header "Next Tasks at work")
+                 (org-agenda-files w/work-agenda-files)))))))
+    ;; TODO capture actions  org-capture-templates
+
+    (setq org-capture-templates
+          `(("i" "Inbox")
+            ("ih" "Home Inbox" entry (file+olp "~/org/home/inbox.org" "Inbox")
+             "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+            ("iw" "Work Inbox" entry (file+olp "~/org/work/inbox.org" "Inbox")
+             "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+            ("r" "Recurring")
+            ("rh" "Home Recurring" entry (file+olp "~/org/home/recurring.org" "Inbox")
+             "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+            ("ih" "Work Recurring" entry (file+olp "~/org/work/recurring.org" "Inbox")
+             "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)))
+
+    (w/org-font-setup))
+#+end_src
+
+*** Better heading bullets
+
+[[https://github.com/sabof/org-bullets][org-bullets]] displays bullets as UTF-8 characters instead of raw stars.
+
+#+begin_src emacs-lisp
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+#+end_src
+
+*** Center Org buffers
+
+Horizontally center buffers for better writing experience with the [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]] minor mode.
+
+#+begin_src emacs-lisp
+  (defun w/org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  (use-package visual-fill-column
+    :hook (org-mode . w/org-mode-visual-fill))
+#+end_src
+
+** Org-mode exporters configuration
+
+Org can convert and export documents to a variety of other formats while retaining as much structure and markup as possible.
+
+*** LaTeX export
+
+The [[https://orgmode.org/manual/LaTeX-Export.html][LaTeX export]] back-end can handle complex documents, incorporate standard or custom LaTeX document classes, generate documents using alternate LaTeX engines, and produce fully linked PDF files with indexes, bibliographies, and tables of contents, destined for interactive online viewing or high-quality print publication.
+
+#+begin_src emacs-lisp
+  (require 'ox-latex)
+
+#+end_src
+
+*** Beamer export
+
+Org uses [[https://orgmode.org/manual/Beamer-Export.html][Beamer export]] to convert an Org file tree structure into high-quality interactive slides for presentations. Beamer is a LaTeX document class for creating presentations in PDF, HTML, and other popular display formats.
+
+#+begin_src emacs-lisp
+  (require 'ox-beamer)
+#+end_src
+
+** Org Babel languages configuration
+
+[[https://orgmode.org/worg/org-contrib/babel/languages/index.html][Babel]] is Org-mode's ability to execute source code within Org-mode documents. Babel supports a growing number of programming [[https://orgmode.org/worg/org-contrib/babel/languages/index.html][languages]].
+
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (ruby . t)))
+
+  (push '("conf-unix" . conf-unix) org-src-lang-modes)
+#+end_src
+
+** Structure templates
+
+With just a few keystrokes, it is possible to insert empty structural blocks, such as ~#+BEGIN_SRC~ … ~#+END_SRC~, or to wrap existing text in such a block.
+[[https://orgmode.org/manual/Structure-Templates.html][Documentation]]
+
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("ru" . "src ruby"))
+#+end_src
+
+** Auto-tangle configuration files
+
+This snippet adds a hook to ~org-mode~ buffers so that ~w/org-babel-tangle-config~ gets executed each time such a buffer gets saved. This function checks to see if the file being saved is the ~emacs/README.org~ file you’re looking at right now, and if so, automatically exports the configuration here to the associated output files.
+
+#+begin_src emacs-lisp
+  ;; Automatically tangle our emacs.org config file when we save it
+  (defun w/org-babel-tangle-config ()
+    (when (string-suffix-p "emacs/README.org" (buffer-file-name))
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'w/org-babel-tangle-config)))
+#+end_src
+
+* Software Development
+
+** Fix $PATH environment variable
+
+Emacs GUI app inherits a default minimal set of environment variables that are not the ones you from the terminal window.
+[[https://github.com/purcell/exec-path-from-shell][exec-path-from-shell]] ensures environment variables inside Emacs look the same as in the user's shell.
+
+#+begin_src emacs-lisp
+  (setq-default explicit-shell-file-name "/bin/zsh")
+
+  (use-package exec-path-from-shell
+    :custom
+    (exec-path-from-shell-arguments . nil)
+    :if (memq window-system '(mac ns x))
+    :config
+    (exec-path-from-shell-initialize))
+#+end_src
+
+** Projectile
+
+[[https://projectile.mx/][Projectile]] is a project interaction library for Emacs. Its goal is to provide a nice set of features operating on a project level without introducing external dependencies.
+
+#+begin_src emacs-lisp
+  (use-package projectile
+    :init
+    (when (file-directory-p "~/workspace/")
+      (setq projectile-project-search-path '("~/workspace/")))
+    :bind-keymap
+    ("C-c p" . projectile-command-map)
+    :config
+    (projectile-mode +1))
+#+end_src
+
+*** Helm Projectile
+
+Enable integration with [[https://github.com/bbatsov/helm-projectile][Helm]].
+
+#+begin_src emacs-lisp
+  (use-package helm-projectile
+    :config
+    (helm-projectile-on))
+#+end_src
+
+** Magit
+
+[[https://magit.vc/][Magit]] is a complete text-based user interface to Git. It fills the glaring gap between the Git command-line interface and various GUIs, letting you perform trivial as well as elaborate version control tasks with just a couple of mnemonic key presses.
+The removed hooks config is taken from Jake McCrary's [[https://jakemccrary.com/blog/2020/11/14/speeding-up-magit/][Speeding up Magit]].
+
+#+begin_src emacs-lisp
+  (use-package magit
+    :bind
+    ("C-c g" . magit-file-dispatch)
+    :custom
+    (magit-git-executable "/usr/bin/git")
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+    :config
+    (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
+    ;; (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent))
+#+end_src
+
+TODO: https://github.com/magit/forge
+
+** Flycheck
+
+[[https://www.flycheck.org/en/latest/][Flycheck]] is a modern on-the-fly syntax checking extension for GNU Emacs. It uses various syntax checking and linting tools to automatically check the contents of buffers while you type, and reports warnings and errors directly in the buffer.
+
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :init (global-flycheck-mode))
+#+end_src
+
+** Company
+
+[[https://company-mode.github.io/][Company]] is a text completion framework for Emacs. It uses pluggable back-ends and front-ends to retrieve and display completion candidates.
+
+#+begin_src emacs-lisp
+  (use-package company
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.0)
+    (company-tooltip-align-annotations t)
+    ;; Disable for org and eshell
+    (company-global-modes '(not org-mode eshell-mode))
+    :config
+    (global-company-mode t))
+#+end_src
+
+** Eshell
+
+[[https://www.gnu.org/software/emacs/manual/html_mono/eshell.html][Eshell]] is a shell-like command interpreter implemented in Emacs Lisp. It invokes no external processes except for those requested by the user.
+
+#+begin_src emacs-lisp
+(defun w/configure-eshell ()
+  ;; Save command history when commands are entered
+  (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+
+  ;; Truncate buffer for performance
+  (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
+
+  (setq eshell-history-size 10000
+        eshell-buffer-maximum-lines 10000
+        eshell-hist-ignoredups t
+        eshell-scroll-to-bottom-on-input t))
+
+(use-package eshell
+  :hook (eshell-first-time-mode . w/configure-eshell)
+  :config
+
+  (with-eval-after-load 'esh-opt
+    (setq eshell-destroy-buffer-when-process-dies t)
+    (setq eshell-visual-commands '("htop" "zsh" "vim"))))
+  #+end_src
+
+** Languages
+
+*** Ruby
+
+Activate the right Ruby version for the file in the current buffer using [[https://github.com/senny/rvm.el][rvm.el]].
+
+#+begin_src emacs-lisp
+  (use-package rvm
+  :config
+  (add-hook 'ruby-mode-hook
+          (lambda () (rvm-activate-corresponding-ruby))))
+#+end_src
+
+*** TypeScript
+
+Use typescript-mode for ~.tsx~ files.
+
+#+begin_src emacs-lisp
+  (use-package typescript-mode
+    :mode "\\.tsx\\'"
+    :config
+    (setq typescript-indent-level 2))
+#+end_src
+
+** JavaScript
+
+#+begin_src emacs-lisp
+  (use-package js
+    :config
+    (setq js-indent-level 2))
+#+end_src
+
+*** CSS
+
+#+begin_src emacs-lisp
+  (use-package css-mode
+    :custom
+    (css-indent-offset 2))
+#+end_src
+
+*** GraphQL
+
+#+begin_src emacs-lisp
+  (use-package graphql-mode
+    :custom
+    (graphql-indent-level 2))
+#+end_src
+
+*** Markdown
+
+#+begin_src emacs-lisp
+  (use-package markdown-mode
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
+#+end_src
+
+*** PHP
+
+#+begin_src emacs-lisp
+  (use-package php-mode
+    :mode
+    ("\\.php\\'" . php-mode))
+#+end_src
+
+* Custom files
+
+Move custom-set-variables and custom-set-faces to a separate file.
+
+#+begin_src emacs-lisp
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+#+end_src
