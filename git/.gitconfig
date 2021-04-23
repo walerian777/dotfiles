@@ -1,9 +1,12 @@
 [user]
-	name = Walerian
-	email = walerian.sobczak@gmail.com
+  name = Walerian
+  email = walerian.sobczak@gmail.com
 [alias]
-	co = checkout
-	st = status
+  co = checkout
+  st = status
 [core]
-	editor = vim
-	excludesfile = /Users/walerian/.gitignore
+  editor = vim
+  excludesfile = ~/.gitignore
+  attributesfile = ~/.gitattributes
+[diff]
+  noprefix = true
