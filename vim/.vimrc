@@ -1,5 +1,5 @@
 " Basic config
-set number
+set number relativenumber
 set tabstop=2 shiftwidth=2 expandtab
 set incsearch
 
@@ -8,9 +8,20 @@ colo peachpuff
 syntax on
 let g:jsx_ext_required = 0
 
+" Map <Leader> to space bar
+let mapleader="\<Space>"
+nnoremap <Space> <Nop>
+noremap <Leader>w :w<CR>
+noremap <Leader>q :q<CR>
+noremap <Leader>a :call ExpandNERDTree()<CR>
+map <Leader>p :Files<CR>
+
 " Need this to prevent white column in the Solarized theme
 highlight clear SignColumn
 " Basic config end
+
+" Ctags
+set tags=tags
 
 " vim-sensible https://github.com/tpope/vim-sensible
 if has('autocmd')
@@ -125,3 +136,14 @@ function! FrozenStringLiteral()
   call setline(1, string)
 endfunction
 " Frozen String Literal macro end"
+
+" Change Ruby hash notation macro
+let @h = 'f:xepl3xj0'
+
+" YARD docs
+hi link yardGenericTag rubyInstanceVariable
+hi link yardYield yardGenericTag
+hi link yardType rubyClass
+hi link yardDuckType yardType
+hi link yardLiteral yardType
+" YARD docs end
