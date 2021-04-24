@@ -1,0 +1,6 @@
+-- Prompt
+:set prompt "\ESC[1;35m\x03BB: \ESC[m"
+:set prompt-cont "\ESC[1;35m : \ESC[m"
+
+-- Better errors
+:set -ferror-spans -freverse-errors -fprint-expanded-synonyms

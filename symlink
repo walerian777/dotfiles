@@ -6,6 +6,7 @@ files=(
     git/.gitattributes
     git/.gitconfig
     git/.gitignore
+    haskell/.ghci
     ruby/.gemrc
     tmux/.tmux.conf
     vim/.vimrc
