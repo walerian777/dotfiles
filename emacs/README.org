@@ -570,11 +570,25 @@ TODO: https://github.com/magit/forge
 (use-package eshell
   :hook (eshell-first-time-mode . w/configure-eshell)
   :config
-
   (with-eval-after-load 'esh-opt
     (setq eshell-destroy-buffer-when-process-dies t)
     (setq eshell-visual-commands '("htop" "zsh" "vim"))))
   #+end_src
+
+** Vterm
+
+[[https://github.com/akermu/emacs-libvterm][Vterm]] is a fully-fledged terminal emulator inside GNU Emacs based on libvterm, a C library. As a result of using compiled code (instead of elisp), emacs-libvterm is fully capable, fast, and it can seamlessly handle large outputs.
+
+#+begin_src emacs-lisp
+(use-package vterm
+  :custom
+  (vterm-shell "/bin/zsh")
+  :config
+  (defun turn-off-chrome ()
+    (hl-line-mode -1)
+    (display-line-numbers-mode -1))
+  :hook (vterm-mode . turn-off-chrome))
+#+end_src
 
 ** Languages
 
