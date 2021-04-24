@@ -27,22 +27,53 @@ Emacs has a built-in package manager, and additionally I use [[https://github.co
   (setq use-package-always-ensure t)
 #+end_src
 
+* Better defaults
+
+Upgrade default settings which more often than not, exist because of backward compatibily issues for older versions of Emacs.
+
+#+begin_src emacs-lisp
+  ;; Set GC threshold to 100MB (default is 80kB)
+  (setq gc-cons-threshold (* 100 1024 1024))
+
+  ;; Fix tab identation to 2 spaces
+  (setq tab-width 2)
+
+  ;; Do not use tabs
+  (setq-default indent-tabs-mode nil)
+
+  ;; Add a newline at the end of a file on save
+  (setq require-final-newline t)
+  (setq-default require-final-newline t)
+  (add-hook 'before-save-hook #'delete-trailing-whitespace)
+
+  ;; Ensure UTF-8 encoding
+  (set-charset-priority 'unicode)
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+#+end_src
+
 * Basic User Interface configuration
 
 Set font size. Remove unnecessary elements of the default UI, and display row and column numbers by default.
 
 #+begin_src emacs-lisp
-  ;; Start the initial frame maximized
-  (add-to-list 'initial-frame-alist '(fullscreen . maximized))
-
   ;; Default font size variable
   (defvar w/default-font-size 170)
 
   ;; Always confirm before exist
   (setq confirm-kill-emacs 'y-or-n-p)
 
+  ;; Start the initial frame maximized
+  (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
   ;; Make the user interface more minimal
-  (setq inhibit-startup-message t)
+  (setq
+    inhibit-startup-message t
+    initial-scratch-message nil)
 
   (scroll-bar-mode -1) ; Disable visible scrollbar
   (tool-bar-mode -1) ; Disable the toolbar
@@ -60,19 +91,6 @@ Set font size. Remove unnecessary elements of the default UI, and display row an
   ;; Display date & time
   (setq display-time-24hr-format t)
   (display-time)
-
-  ;; Add a newline at the end of a file on save
-  (setq require-final-newline t)
-  (setq-default require-final-newline t)
-
-  ;; Fix tab identation to 2 spaces
-  (setq tab-width 2
-      indent-tabs-mode nil)
-
-  (add-hook 'before-save-hook
-            (lambda ()
-              (when (derived-mode-p 'prog-mode)
-                (delete-trailing-whitespace))))
 
   ;; Disable line numbers for some modes
   (dolist (mode '(org-mode-hook
@@ -96,6 +114,9 @@ For other cases I stick to Helvetica.
 
   ;; Set the variable pitch face
   (set-face-attribute 'variable-pitch nil :font "Helvetica" :height w/default-font-size :weight 'regular)
+
+  ;; Support for emoji
+  (set-fontset-font "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
 #+end_src
 
 * Key bindings
@@ -449,8 +470,6 @@ Emacs GUI app inherits a default minimal set of environment variables that are n
   (setq-default explicit-shell-file-name "/bin/zsh")
 
   (use-package exec-path-from-shell
-    :custom
-    (exec-path-from-shell-arguments . nil)
     :if (memq window-system '(mac ns x))
     :config
     (exec-path-from-shell-initialize))
@@ -541,6 +560,8 @@ TODO: https://github.com/magit/forge
   ;; Truncate buffer for performance
   (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
 
+  (setenv "PAGER" "cat")
+
   (setq eshell-history-size 10000
         eshell-buffer-maximum-lines 10000
         eshell-hist-ignoredups t
@@ -579,7 +600,7 @@ Use typescript-mode for ~.tsx~ files.
     (setq typescript-indent-level 2))
 #+end_src
 
-** JavaScript
+*** JavaScript
 
 #+begin_src emacs-lisp
   (use-package js
@@ -620,6 +641,15 @@ Use typescript-mode for ~.tsx~ files.
   (use-package php-mode
     :mode
     ("\\.php\\'" . php-mode))
+#+end_src
+
+*** Config languages
+
+#+begin_src emacs-lisp
+(use-package yaml-mode)
+(use-package dockerfile-mode)
+(use-package toml-mode)
+(use-package terraform-mode)
 #+end_src
 
 * Custom files
