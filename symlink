@@ -2,6 +2,7 @@
 
 files=(
     bash/.bash_profile
+    bash/.bashrc
     bash/.profile
     git/.gitattributes
     git/.gitconfig
