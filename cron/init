@@ -1,0 +1,11 @@
+#!/bin/bash
+
+crons=(
+    "0 * * * * rsync -va --delete --exclude '.DS_Store' $HOME/org/ /Volumes/home/org"
+)
+
+for cron in "${crons[@]}"
+do
+    # Based on https://stackoverflow.com/a/51497394/1757430
+    (crontab -l 2>/dev/null || true; echo "$cron") | crontab -
+done
