@@ -35,6 +35,9 @@ Upgrade default settings which more often than not, exist because of backward co
   ;; Set GC threshold to 100MB (default is 80kB)
   (setq gc-cons-threshold (* 100 1024 1024))
 
+  ;; Shorten yes/no with y/n
+  (defalias 'yes-or-no-p 'y-or-n-p)
+
   ;; Fix tab identation to 2 spaces
   (setq tab-width 2)
 
@@ -131,6 +134,40 @@ Disable the right alt/option key within Emacs so the diactrical characters can b
 
 * File management
 
+** Open file in external app
+
+Function which allows you to open the current file or marked dired files in external app. Can be useful for image files, PDF file, video, audio files.
+
+#+begin_src emacs-lisp
+(defun w/open-in-external-app (&optional @fname)
+  (interactive)
+  (let* (
+         ($file-list
+          (if @fname
+              (progn (list @fname))
+            (if (string-equal major-mode "dired-mode")
+                (dired-get-marked-files)
+              (list (buffer-file-name)))))
+         ($do-it-p (if (<= (length $file-list) 5)
+                       t
+                     (y-or-n-p "Open more than 5 files? "))))
+    (when $do-it-p
+      (cond
+       ((string-equal system-type "windows-nt")
+        (mapc
+         (lambda ($fpath)
+           (shell-command (concat "PowerShell -Command \"Invoke-Item -LiteralPath\" " "'" (shell-quote-argument (expand-file-name $fpath )) "'")))
+         $file-list))
+       ((string-equal system-type "darwin")
+        (mapc
+         (lambda ($fpath)
+           (shell-command
+            (concat "open " (shell-quote-argument $fpath))))  $file-list))
+       ((string-equal system-type "gnu/linux")
+        (mapc
+         (lambda ($fpath) (let ((process-connection-type nil))
+                            (start-process "" nil "xdg-open" $fpath))) $file-list))))))
+#+end_src
 ** dired
 
 Dired is a built-in file manager for Emacs.
@@ -147,7 +184,8 @@ Addititionally, ~dired-use-ls-dired~ needs to be set to ~nil~ to prevent followi
   (use-package dired
     :ensure nil
     :commands (dired dired-jump)
-    :bind (("C-x C-j" . dired-jump))
+    :bind (("C-x C-j" . dired-jump)
+           ("<C-return>" . w/open-in-external-app))
     :custom
     (dired-listing-switches "-oagh")
     (dired-use-ls-dired nil))
@@ -366,7 +404,7 @@ Basic setup for ~org-mode~ and its agenda-related features.
             ("r" "Recurring")
             ("rh" "Home Recurring" entry (file+olp "~/org/home/recurring.org" "Inbox")
              "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-            ("ih" "Work Recurring" entry (file+olp "~/org/work/recurring.org" "Inbox")
+            ("rw" "Work Recurring" entry (file+olp "~/org/work/recurring.org" "Inbox")
              "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)))
 
     (w/org-font-setup))
@@ -514,11 +552,12 @@ The removed hooks config is taken from Jake McCrary's [[https://jakemccrary.com/
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
     :config
     (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
-    ;; (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
     (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
     (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
     (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent))
+    (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
+
+    (add-to-list 'magit-no-confirm 'stage-all-changes))
 #+end_src
 
 TODO: https://github.com/magit/forge
