@@ -325,15 +325,33 @@ Basic setup for ~org-mode~ and its agenda-related features.
     (variable-pitch-mode 1)
     (visual-line-mode 1))
 
+  (defvar w/home-agenda-inbox-file
+    "~/org/home/inbox.org")
+
+  (defvar w/home-agenda-projects-file
+    "~/org/home/projects.org")
+
+  (defvar w/home-agenda-recurring-file
+    "~/org/home/recurring.org")
+
   (defvar w/home-agenda-files
-    '("~/org/home/inbox.org"
-      "~/org/home/projects.org"
-      "~/org/home/recurring.org"))
+    (list w/home-agenda-inbox-file
+          w/home-agenda-projects-file
+          w/home-agenda-recurring-file))
+
+  (defvar w/work-agenda-inbox-file
+    "~/org/work/inbox.org")
+
+  (defvar w/work-agenda-projects-file
+    "~/org/work/projects.org")
+
+  (defvar w/work-agenda-recurring-file
+    "~/org/work/recurring.org")
 
   (defvar w/work-agenda-files
-    '("~/org/work/inbox.org"
-      "~/org/work/projects.org"
-      "~/org/work/recurring.org"))
+    (list w/work-agenda-inbox-file
+          w/work-agenda-projects-file
+          w/work-agenda-recurring-file))
 
   (use-package org
     :hook (org-mode . w/org-mode-setup)
@@ -352,7 +370,6 @@ Basic setup for ~org-mode~ and its agenda-related features.
 
     (setq org-agenda-files
         (append w/home-agenda-files w/work-agenda-files))
-
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
@@ -363,12 +380,12 @@ Basic setup for ~org-mode~ and its agenda-related features.
 
     (setq org-refile-targets
           '(("~/org/home/archive.org" :maxlevel . 1)
-            ("~/org/home/projects.org" :maxlevel . 2)
-            ("~/org/home/recurring.org" :maxlevel . 2)
+            (w/home-agenda-projects-file :maxlevel . 2)
+            (w/home-agenda-recurring-file :maxlevel . 2)
             ("~/org/home/someday.org" :maxlevel . 1)
             ("~/org/work/archive.org" :maxlevel . 1)
-            ("~/org/work/projects.org" :maxlevel . 2)
-            ("~/org/work/recurring.org" :maxlevel . 2)
+            (w/work-agenda-projects-file :maxlevel . 2)
+            (w/work-agenda-recurring-file :maxlevel . 2)
             ("~/org/work/someday.org" :maxlevel . 1)))
 
     ;; Save Org buffers after refiling!
@@ -383,16 +400,23 @@ Basic setup for ~org-mode~ and its agenda-related features.
             ("reading" . ?r)
             ("listening" . ?p)))
 
-    ;; Configure custom agendas
-    (setq org-agenda-custom-commands
-        '(("h" "Next tasks at home"
-           ((todo "NEXT"
-                  ((org-agenda-overriding-header "Next Tasks at home")
-                   (org-agenda-files w/home-agenda-files)))))
-        ("w" "Next tasks at work"
-         ((todo "NEXT"
-                ((org-agenda-overriding-header "Next Tasks at work")
-                 (org-agenda-files w/work-agenda-files)))))))
+  (setq org-agenda-custom-commands
+      '(("w" "Work agenda"
+         ((agenda "" ((org-agenda-span 1)
+                      (org-deadline-warning-days 30)
+                      (org-agenda-scheduled-leaders '("" ""))
+                      (org-agenda-overriding-header "Today's schedule")))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "Next tasks")
+                 (org-agenda-files w/work-agenda-files)
+                 (org-agenda-prefix-format " ◉ %i %(concat \"[\"(org-format-outline-path (org-get-outline-path)) \"]\")")
+                 (org-agenda-todo-keyword-format "")))
+          (tags-todo "LEVEL=1" ((org-agenda-overriding-header "Ongoing projects")
+                                (org-agenda-files (list w/work-agenda-projects-file))
+                                (org-agenda-prefix-format " ◉ %i")
+                                (org-agenda-todo-keyword-format ""))))
+        )))
+
     ;; TODO capture actions  org-capture-templates
 
     (setq org-capture-templates
@@ -406,6 +430,9 @@ Basic setup for ~org-mode~ and its agenda-related features.
              "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
             ("rw" "Work Recurring" entry (file+olp "~/org/work/recurring.org" "Inbox")
              "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)))
+
+    ;; Initialize agenda on startup
+    (add-hook 'after-init-hook (lambda () (org-agenda nil "w")))
 
     (w/org-font-setup))
 #+end_src
