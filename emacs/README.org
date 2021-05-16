@@ -417,8 +417,6 @@ Basic setup for ~org-mode~ and its agenda-related features.
                                 (org-agenda-todo-keyword-format ""))))
         )))
 
-    ;; TODO capture actions  org-capture-templates
-
     (setq org-capture-templates
           `(("i" "Inbox")
             ("ih" "Home Inbox" entry (file+olp "~/org/home/inbox.org" "Inbox")
@@ -432,7 +430,7 @@ Basic setup for ~org-mode~ and its agenda-related features.
              "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)))
 
     ;; Initialize agenda on startup
-    (add-hook 'after-init-hook (lambda () (org-agenda nil "w")))
+    (add-hook 'after-init-hook (lambda () (org-agenda nil "w") (delete-other-windows)))
 
     (w/org-font-setup))
 #+end_src
@@ -660,13 +658,25 @@ TODO: https://github.com/magit/forge
 
 *** Ruby
 
+**** RVM
+
 Activate the right Ruby version for the file in the current buffer using [[https://github.com/senny/rvm.el][rvm.el]].
 
 #+begin_src emacs-lisp
   (use-package rvm
-  :config
-  (add-hook 'ruby-mode-hook
+    :config
+    (add-hook 'ruby-mode-hook
           (lambda () (rvm-activate-corresponding-ruby))))
+#+end_src
+
+**** YARD docs
+
+Enable [[https://github.com/pd/yard-mode.el][yard-mode]] for ruby-mode
+
+#+begin_src emacs-lisp
+  (use-package yard-mode
+    :config
+    (add-hook 'ruby-mode-hook 'yard-mode))
 #+end_src
 
 *** TypeScript
@@ -713,6 +723,12 @@ Use typescript-mode for ~.tsx~ files.
            ("\\.md\\'" . markdown-mode)
            ("\\.markdown\\'" . markdown-mode))
     :init (setq markdown-command "multimarkdown"))
+#+end_src
+
+*** CSV
+
+#+begin_src emacs-lisp
+  (use-package csv-mode)
 #+end_src
 
 *** PHP
