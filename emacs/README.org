@@ -25,6 +25,12 @@ Emacs has a built-in package manager, and additionally I use [[https://github.co
 
   (require 'use-package)
   (setq use-package-always-ensure t)
+
+  ;; Install quelpa (packages directly from source)
+  (use-package quelpa-use-package
+    :init (setq quelpa-update-melpa-p nil)
+    :config (quelpa-use-package-activate-advice))
+
 #+end_src
 
 * Better defaults
