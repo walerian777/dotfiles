@@ -191,6 +191,7 @@ Function which allows you to open the current file or marked dired files in exte
          (lambda ($fpath) (let ((process-connection-type nil))
                             (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 #+end_src
+
 ** dired
 
 Dired is a built-in file manager for Emacs.
@@ -380,6 +381,8 @@ Basic setup for ~org-mode~ and its agenda-related features.
     :hook (org-mode . w/org-mode-setup)
     :config
     (setq org-ellipsis " ▾")
+
+    (setq org-clock-sound "~/workspace/dotfiles/emacs/bell.wav")
 
     ;; Key bindings
     (global-set-key (kbd "C-c l") 'org-store-link)
