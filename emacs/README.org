@@ -679,6 +679,12 @@ Enable [[https://github.com/pd/yard-mode.el][yard-mode]] for ruby-mode
     (add-hook 'ruby-mode-hook 'yard-mode))
 #+end_src
 
+*** Haskell
+
+#+begin_src emacs-lisp
+  (use-package haskell-mode)
+#+end_src
+
 *** TypeScript
 
 Use typescript-mode for ~.tsx~ files.
