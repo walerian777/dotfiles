@@ -128,6 +128,23 @@ For other cases I stick to Helvetica.
   (set-fontset-font "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
 #+end_src
 
+** MacOS sounds fix
+
+#+begin_src emacs-lisp
+  (use-package play-sound
+    :if (eq system-type 'darwin)
+    :ensure t
+    :quelpa (play-sound
+             :fetcher github
+             :repo "leoliu/play-sound-osx"))
+
+  (if (string-equal system-type "darwin")
+      (unless (and (fboundp 'play-sound-internal)
+                   (subrp (symbol-function 'play-sound-internal)))
+        (require 'play-sound)))
+#+end_src
+
+
 * Key bindings
 
 ** Diacritics
