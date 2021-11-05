@@ -521,6 +521,10 @@ Org uses [[https://orgmode.org/manual/Beamer-Export.html][Beamer export]] to con
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
   (push '("plantuml" . plantuml) org-src-lang-modes)
+
+  (defun my-org-confirm-babel-evaluate (lang body)
+    (not (string= lang "plantuml")))
+  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 #+end_src
 
 ** Structure templates
