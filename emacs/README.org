@@ -516,9 +516,11 @@ Org uses [[https://orgmode.org/manual/Beamer-Export.html][Beamer export]] to con
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
+     (plantuml . t)
      (ruby . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
+  (push '("plantuml" . plantuml) org-src-lang-modes)
 #+end_src
 
 ** Structure templates
@@ -531,6 +533,7 @@ With just a few keystrokes, it is possible to insert empty structural blocks, su
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("ru" . "src ruby"))
+  (add-to-list 'org-structure-template-alist '("pu" . "src plantuml"))
 #+end_src
 
 ** Auto-tangle configuration files
@@ -778,6 +781,13 @@ Use typescript-mode for ~.tsx~ files.
 (use-package dockerfile-mode)
 (use-package toml-mode)
 (use-package terraform-mode)
+#+end_src
+
+*** PlantUML (PUML)
+
+#+begin_src emacs-lisp
+    (use-package plantuml-mode
+      :init (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar")))
 #+end_src
 
 * Custom files
