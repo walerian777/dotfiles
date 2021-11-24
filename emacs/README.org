@@ -527,6 +527,37 @@ Org uses [[https://orgmode.org/manual/Beamer-Export.html][Beamer export]] to con
   (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 #+end_src
 
+** Org-roam
+
+[[https://github.com/org-roam/org-roam][Org-roam]] is a plain-text knowledge management system. It brings some of Roam's more powerful features into the Org-mode ecosystem.
+[[https://www.orgroam.com/manual.html][Documentation]]
+
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory (file-truename "~/notes"))
+    (org-roam-completion-everywhere t)
+    (org-roam-capture-templates
+     '(("d" "default" plain
+        "%?"
+        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
+        :unnarrowed t)))
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+           ("C-c n f" . org-roam-node-find)
+           ("C-c n g" . org-roam-graph)
+           ("C-c n i" . org-roam-node-insert)
+           ("C-c n c" . org-roam-capture)
+           ;; Dailies
+           ("C-c n j" . org-roam-dailies-capture-today)
+           :map org-mode-map
+           ("C-M-i" . completion-at-point))
+    :config
+    (org-roam-db-autosync-mode)
+    (require 'org-roam-protocol))
+#+end_src
+
 ** Structure templates
 
 With just a few keystrokes, it is possible to insert empty structural blocks, such as ~#+BEGIN_SRC~ … ~#+END_SRC~, or to wrap existing text in such a block.
