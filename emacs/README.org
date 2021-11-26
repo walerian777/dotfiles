@@ -776,6 +776,14 @@ Use typescript-mode for ~.tsx~ files.
     (css-indent-offset 2))
 #+end_src
 
+*** Svelte
+
+#+begin_src emacs-lisp
+  (use-package svelte-mode
+    :custom
+    (svelte-basic-offset 2))
+#+end_src
+
 *** GraphQL
 
 #+begin_src emacs-lisp
