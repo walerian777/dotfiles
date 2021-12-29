@@ -55,6 +55,11 @@ Upgrade default settings which more often than not, exist because of backward co
   (setq-default require-final-newline t)
   (add-hook 'before-save-hook #'delete-trailing-whitespace)
 
+  ;; Display whitespaces
+  (setq-default show-trailing-whitespace t)
+  (setq-default indicate-empty-lines t)
+  (setq-default indicate-buffer-boundaries 'left)
+
   ;; Ensure UTF-8 encoding
   (set-charset-priority 'unicode)
   (setq locale-coding-system 'utf-8)
@@ -95,6 +100,7 @@ Set font size. Remove unnecessary elements of the default UI, and display row an
   (global-display-line-numbers-mode t)
 
   ;; Always show parentheses
+  (setq show-paren-delay 0)
   (show-paren-mode t)
 
   ;; Display date & time
@@ -396,6 +402,7 @@ Basic setup for ~org-mode~ and its agenda-related features.
 
     (setq org-agenda-files
         (append w/home-agenda-files w/work-agenda-files))
+
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
@@ -536,6 +543,7 @@ Org uses [[https://orgmode.org/manual/Beamer-Export.html][Beamer export]] to con
   (use-package org-roam
     :init
     (setq org-roam-v2-ack t)
+
     :custom
     (org-roam-directory (file-truename "~/notes"))
     (org-roam-completion-everywhere t)
@@ -544,6 +552,7 @@ Org uses [[https://orgmode.org/manual/Beamer-Export.html][Beamer export]] to con
         "%?"
         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
         :unnarrowed t)))
+
     :bind (("C-c n l" . org-roam-buffer-toggle)
            ("C-c n f" . org-roam-node-find)
            ("C-c n g" . org-roam-graph)
@@ -553,6 +562,7 @@ Org uses [[https://orgmode.org/manual/Beamer-Export.html][Beamer export]] to con
            ("C-c n j" . org-roam-dailies-capture-today)
            :map org-mode-map
            ("C-M-i" . completion-at-point))
+
     :config
     (org-roam-db-autosync-mode)
     (require 'org-roam-protocol))
