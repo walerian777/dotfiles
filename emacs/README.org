@@ -851,3 +851,14 @@ Move custom-set-variables and custom-set-faces to a separate file.
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
 #+end_src
+
+* Backup and lock files
+
+#+begin_src emacs-lisp
+  (unless (file-exists-p "~/.emacs.d/backup/")
+    (make-directory  "~/.emacs.d/backup/"))
+
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/backup/" t)))
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backup/")))
+  (setq create-lockfiles nil)
+#+end_src
