@@ -686,6 +686,26 @@ TODO: https://github.com/magit/forge
     (global-company-mode t))
 #+end_src
 
+** Rainbow delimiters
+
+[[https://github.com/Fanael/rainbow-delimiters][Rainbow delimiters]] (~rainbow-delimiters~) is a "rainbow parentheses"-like mode which highlights delimiters such as parentheses, brackets or braces according to their depth. Each successive level is highlighted in a different color.
+
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :custom
+    (set-face-foreground 'rainbow-delimiters-depth-1-face "#c66")
+    (set-face-foreground 'rainbow-delimiters-depth-2-face "#6c6")
+    (set-face-foreground 'rainbow-delimiters-depth-3-face "#69f")
+    (set-face-foreground 'rainbow-delimiters-depth-4-face "#cc6")
+    (set-face-foreground 'rainbow-delimiters-depth-5-face "#6cc")
+    (set-face-foreground 'rainbow-delimiters-depth-6-face "#c6c")
+    (set-face-foreground 'rainbow-delimiters-depth-7-face "#ccc")
+    (set-face-foreground 'rainbow-delimiters-depth-8-face "#999")
+    (set-face-foreground 'rainbow-delimiters-depth-9-face "#666")
+    :config
+    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+end_src
+
 ** Eshell
 
 [[https://www.gnu.org/software/emacs/manual/html_mono/eshell.html][Eshell]] is a shell-like command interpreter implemented in Emacs Lisp. It invokes no external processes except for those requested by the user.
@@ -757,6 +777,22 @@ Enable [[https://github.com/pd/yard-mode.el][yard-mode]] for ruby-mode
 
 #+begin_src emacs-lisp
   (use-package haskell-mode)
+#+end_src
+
+*** Emacs Lisp
+
+**** ParEdit
+
+ParEdit (~paredit.el~) is a minor mode for performing structured editing of S-expression data.
+
+#+begin_src emacs-lisp
+  (use-package paredit
+    :config
+    (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
+    (add-hook 'lisp-interaction-mode-hook #'paredit-mode)
+    (add-hook 'ielm-mode-hook #'paredit-mode)
+    (add-hook 'lisp-mode-hook #'paredit-mode)
+    (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
 #+end_src
 
 *** TypeScript
