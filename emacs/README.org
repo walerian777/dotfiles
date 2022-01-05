@@ -692,7 +692,7 @@ TODO: https://github.com/magit/forge
 
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
-    :custom
+    :config
     (set-face-foreground 'rainbow-delimiters-depth-1-face "#c66")
     (set-face-foreground 'rainbow-delimiters-depth-2-face "#6c6")
     (set-face-foreground 'rainbow-delimiters-depth-3-face "#69f")
@@ -702,8 +702,17 @@ TODO: https://github.com/magit/forge
     (set-face-foreground 'rainbow-delimiters-depth-7-face "#ccc")
     (set-face-foreground 'rainbow-delimiters-depth-8-face "#999")
     (set-face-foreground 'rainbow-delimiters-depth-9-face "#666")
-    :config
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+end_src
+
+** Rainbow mode
+
+[[http://elpa.gnu.org/packages/rainbow-mode.html][Rainbow mode]] (~rainbow-mode~) sets background color to strings that match color names, e.g. #0000ff is displayed in white with a blue background.
+
+#+begin_src emacs-lisp
+  (use-package rainbow-mode
+    :config
+    (add-hook 'prog-mode-hook #'rainbow-mode))
 #+end_src
 
 ** Eshell
