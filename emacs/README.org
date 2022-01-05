@@ -596,6 +596,32 @@ This snippet adds a hook to ~org-mode~ buffers so that ~w/org-babel-tangle-confi
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'w/org-babel-tangle-config)))
 #+end_src
 
+
+* Ledger
+
+Double-entry accounting system
+[[https://github.com/ledger/ledger][Homepage]]
+
+** Ledger mode
+
+[[https://github.com/ledger/ledger-mode][Ledger mode]] (~ledger-mode~) provides a major mode for editing files in the format used by the ledger command-line accounting system.
+
+#+begin_src emacs-lisp
+  (use-package ledger-mode
+    :mode ".ledger"
+    :custom
+    (ledger-clear-whole-transactions t))
+#+end_src
+
+** Flycheck ledger
+
+[[https://github.com/purcell/flycheck-ledger][Flycheck ledger]] (~flycheck-ledger~) provides a flycheck checker for Ledger files.
+
+#+begin_src emacs-lisp
+  (use-package flycheck-ledger
+    :after ledger-mode)
+#+end_src
+
 * Software Development
 
 ** Fix $PATH environment variable
