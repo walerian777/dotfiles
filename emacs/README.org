@@ -632,7 +632,8 @@ Double-entry accounting system
   (use-package flyspell
     :config
     (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-    (add-hook 'text-mode-hook 'flyspell-mode))
+    (add-hook 'text-mode-hook 'flyspell-mode)
+    (setq ispell-program-name "/usr/local/bin/aspell"))
 #+end_src
 
 ** Writegood Mode
