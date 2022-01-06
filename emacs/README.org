@@ -597,7 +597,7 @@ This snippet adds a hook to ~org-mode~ buffers so that ~w/org-babel-tangle-confi
 #+end_src
 
 
-* Ledger
+* Accounting
 
 Double-entry accounting system
 [[https://github.com/ledger/ledger][Homepage]]
@@ -620,6 +620,32 @@ Double-entry accounting system
 #+begin_src emacs-lisp
   (use-package flycheck-ledger
     :after ledger-mode)
+#+end_src
+
+* Writing
+
+** FlySpell
+
+[[https://www.emacswiki.org/emacs/FlySpell][FlySpell]] (~flyspell-mode~) enables on-the-fly spell checking in Emacs by the means of a minor mode. It highlights incorrect words as soon as they are completed or as soon as the ~TextCursor~ hits a new word. It uses [[http://aspell.net/][GNU Aspell]] as its spell checking engine]], which can be installed with ~brew install aspell~.
+
+#+begin_src emacs-lisp
+  (use-package flyspell
+    :config
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+    (add-hook 'text-mode-hook 'flyspell-mode))
+#+end_src
+
+** Writegood Mode
+
+[[https://github.com/bnbeckwith/writegood-mode][Writegood mode]] (~writegood-mode~) is a minor mode to aid in finding common writing problems. It highlights text based on a set of weasel-words, passive-voice and duplicate words.
+
+#+begin_src emacs-lisp
+  (use-package writegood-mode
+    :commands
+    (writegood-mode
+     writegood-grade-level
+     writegood-reading-ease)
+    :hook (text-mode . writegood-mode))
 #+end_src
 
 * Software Development
