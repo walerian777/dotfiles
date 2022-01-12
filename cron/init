@@ -6,6 +6,15 @@ crons=(
 
     # Snapshot org files via Git
     "0 * * * * cd $HOME/org && git add . && git commit -m 'Hourly snapshot'"
+
+    # Sync notes to the NAS
+    "0 * * * * rsync -va --delete --exclude '.DS_Store' $HOME/notes/ /Volumes/home/notes"
+
+    # Snapshot notes via Git
+    "0 * * * * cd $HOME/notes && git add . && git commit -m 'Hourly snapshot'"
+
+    # Sync ledger files to the NAS
+    "0 * * * * rsync -va --delete --exclude '.DS_Store' $HOME/.ledger/ /Volumes/home/ledger"
 )
 
 for cron in "${crons[@]}"
