@@ -38,8 +38,8 @@ Emacs has a built-in package manager, and additionally I use [[https://github.co
 Upgrade default settings which more often than not, exist because of backward compatibily issues for older versions of Emacs.
 
 #+begin_src emacs-lisp
-  ;; Set GC threshold to 100MB (default is 80kB)
-  (setq gc-cons-threshold (* 100 1024 1024))
+  ;; Set GC threshold to 500MB (default is 80kB)
+  (setq gc-cons-threshold (* 500 1024 1024))
 
   ;; Shorten yes/no with y/n
   (defalias 'yes-or-no-p 'y-or-n-p)
