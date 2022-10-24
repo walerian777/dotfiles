@@ -925,6 +925,14 @@ Use typescript-mode for ~.tsx~ files.
     ("\\.php\\'" . php-mode))
 #+end_src
 
+*** Go
+
+#+begin_src emacs-lisp
+  (use-package go-mode
+    :config
+    (add-hook 'before-save-hook 'gofmt-before-save))
+#+end_src
+
 *** Config languages
 
 #+begin_src emacs-lisp
