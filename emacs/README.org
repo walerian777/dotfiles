@@ -115,6 +115,14 @@ Set font size. Remove unnecessary elements of the default UI, and display row an
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
+** Better window switching with WindMove
+
+[[https://www.emacswiki.org/emacs/WindMove][WindMove]] lets you move point from window to window using Shift and the arrow keys
+
+#+begin_src emacs-lisp
+  (windmove-default-keybindings)
+#+end_src
+
 ** Fonts configuration
 
 Currently [[https://dejavu-fonts.github.io/][DejaVu Sans Mono]] is my font of choice for monospaced text.
