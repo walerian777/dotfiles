@@ -720,7 +720,17 @@ The removed hooks config is taken from Jake McCrary's [[https://jakemccrary.com/
     (add-to-list 'magit-no-confirm 'stage-all-changes))
 #+end_src
 
-TODO: https://github.com/magit/forge
+*** Magit Delta
+
+The [[https://github.com/dandavison/magit-delta][magit-delta]] package enables [[https://github.com/dandavison/delta][delta]] when viewing diffs in Magit.
+It requires delta to [[https://dandavison.github.io/delta/installation.html][be installed]].
+
+#+begin_src emacs-lisp
+  (use-package magit-delta
+    :hook (magit-mode . magit-delta-mode))
+#+end_src
+
+*** TODO: https://github.com/magit/forge
 
 ** Flycheck
 
